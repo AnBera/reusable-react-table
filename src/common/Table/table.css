@@ -3,6 +3,23 @@ table, th, td {
     border-collapse: collapse;
   }
 
+thead a {
+  display: inline-block;
+  margin-left: 1em;
+  cursor: pointer;
+}
+
+thead a::after {
+  content: '↕️';
+}
+
+thead a.ascending::after {
+  content: '🔽';
+}
+
+thead a.descending::after {
+  content: '🔼';
+}
 .table-wrapper {
     width: 100%;
     table-layout: fixed;

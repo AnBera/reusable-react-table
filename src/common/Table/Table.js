@@ -5,6 +5,8 @@ import Pagination from './Pagination'
 import './table.css';
 
 const Table = ({ columns, data, customClass }) => {
+    const { items, requestSort, sortConfig } = useSortableData(data);
+
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [dataPerPage] = useState(3);
@@ -12,10 +14,17 @@ const Table = ({ columns, data, customClass }) => {
     // current page data
     const indexOfLastData = currentPage * dataPerPage;
     const indexOfFirstData = indexOfLastData - dataPerPage;
-    const currentPageData = data.slice(indexOfFirstData, indexOfLastData);
+    const currentPageData = items.slice(indexOfFirstData, indexOfLastData);
 
     // Change page
     const paginate = pageNumber => setCurrentPage(pageNumber);
+    
+    const getClassNamesFor = (name) => {
+        if (!sortConfig) {
+          return;
+        }
+        return sortConfig.key === name ? sortConfig.direction : undefined;
+      };
 
     return (
         <>
@@ -23,7 +32,11 @@ const Table = ({ columns, data, customClass }) => {
                 <thead>
                     <tr>
                         {columns.map((col) => {
-                            return <TableHeadItem key={col?.accessor} item={col?.header} />;
+                            return <TableHeadItem key={col?.accessor} column={col}
+                            tableHeadCallbacks={{
+                                requestSort,
+                                getClassNamesFor,
+                            }} />;
                         })}
                     </tr>
                 </thead>
@@ -51,3 +64,38 @@ const Table = ({ columns, data, customClass }) => {
 };
 
 export default Table;
+
+
+const useSortableData = (items, config = null) => {
+    const [sortConfig, setSortConfig] = React.useState(config);
+  
+    const sortedItems = React.useMemo(() => {
+      let sortableItems = [...items];
+      if (sortConfig !== null) {
+        sortableItems.sort((a, b) => {
+          if (a[sortConfig.key] < b[sortConfig.key]) {
+            return sortConfig.direction === 'ascending' ? -1 : 1;
+          }
+          if (a[sortConfig.key] > b[sortConfig.key]) {
+            return sortConfig.direction === 'ascending' ? 1 : -1;
+          }
+          return 0;
+        });
+      }
+      return sortableItems;
+    }, [items, sortConfig]);
+  
+    const requestSort = (key) => {
+      let direction = 'ascending';
+      if (
+        sortConfig &&
+        sortConfig.key === key &&
+        sortConfig.direction === 'ascending'
+      ) {
+        direction = 'descending';
+      }
+      setSortConfig({ key, direction });
+    };
+  
+    return { items: sortedItems, requestSort, sortConfig };
+  };
