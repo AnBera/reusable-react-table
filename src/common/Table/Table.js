@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import TableRow from "./TableRow";
-import TableHeadItem from "./TableHead";
+import TableHead from "./TableHead";
 import Pagination from './Pagination'
 import './table.css';
 
@@ -10,11 +10,14 @@ const Table = ({ columns, data, customClass }) => {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [dataPerPage] = useState(3);
+    const [filterValues, setFilterValues] = useState({});
+    const [sortedData, setSortedData] = useState(items);
+    const [currentPageData, setCurrentPageData] = useState([]);
 
     // current page data
     const indexOfLastData = currentPage * dataPerPage;
     const indexOfFirstData = indexOfLastData - dataPerPage;
-    const currentPageData = items.slice(indexOfFirstData, indexOfLastData);
+    // let currentPageData = items.slice(indexOfFirstData, indexOfLastData);
 
     // Change page
     const paginate = pageNumber => setCurrentPage(pageNumber);
@@ -25,6 +28,45 @@ const Table = ({ columns, data, customClass }) => {
         }
         return sortConfig.key === name ? sortConfig.direction : undefined;
       };
+    
+      const onChangeFilterText = (filterValue, accessor) => {
+        setFilterValues ({
+            ...filterValues,
+            [accessor]: filterValue,
+        })
+      };
+
+      function filterRowData(row, filters) {
+        const filterKeys = Object.keys(filters);
+        
+        for (let filterKey of filterKeys) {
+          if (row[filterKey]?.toLowerCase()?.includes(filters[filterKey]?.toLowerCase())) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+    //   useEffect(() => {
+    //       const filteredData = currentPageData.filter((rowData) => {
+    //         return filterRowData(rowData, filterValues)
+    //     });
+    //       setCurrentPageData(filteredData);
+    //   }, [items])
+      
+    useEffect(() => {
+        setCurrentPageData(items.slice(indexOfFirstData, indexOfLastData));
+      }, [items, currentPage])
+
+      useEffect(() => {
+        //   const filteredData = items.filter((rowData) => {
+        //         return filterRowData(rowData, filterValues)
+        //     });
+        // currentPageData = items.slice(indexOfFirstData, indexOfLastData);
+        // setSortedData(items); 
+        
+          setCurrentPageData(items.slice(indexOfFirstData, indexOfLastData));
+      }, [])
 
     return (
         <>
@@ -32,11 +74,14 @@ const Table = ({ columns, data, customClass }) => {
                 <thead>
                     <tr>
                         {columns.map((col) => {
-                            return <TableHeadItem key={col?.accessor} column={col}
+                            return (
+                            <TableHead key={col?.accessor} column={col}
+                            filter={filterValues[col?.accessor]}
                             tableHeadCallbacks={{
                                 requestSort,
                                 getClassNamesFor,
-                            }} />;
+                                onChangeFilterText,
+                            }} />);
                         })}
                     </tr>
                 </thead>

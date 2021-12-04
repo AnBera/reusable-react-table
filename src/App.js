@@ -25,12 +25,14 @@ function App() {
       accessor: 'name',
       width: 80,
       sortable: true,
+      searchable: true,
     },
     {
       header: 'Email',
       accessor: 'email',
       width: 80,
       sortable: true,
+      searchable: true,
     },
     {
       header: 'Age',

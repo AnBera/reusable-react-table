@@ -1,9 +1,15 @@
 import React from "react";
 
-const TableHeadItem = ({ column, tableHeadCallbacks }) => {
+const TableHead = ({ column, tableHeadCallbacks, filter }) => {
     return (
         <td title={column?.accessor}>
             {column?.header}
+            {column?.searchable && (
+                <input
+                    type="text"
+                    value={filter}
+                    onChange={e => tableHeadCallbacks?.onChangeFilterText(e.target.value, column?.accessor)} />
+            )}
             {column?.sortable && (
                 <a
                     onClick={() => tableHeadCallbacks?.requestSort?.(column?.accessor)}
@@ -15,4 +21,4 @@ const TableHeadItem = ({ column, tableHeadCallbacks }) => {
     );
 };
 
-export default TableHeadItem;
+export default TableHead;
