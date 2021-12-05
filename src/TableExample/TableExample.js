@@ -30,6 +30,17 @@ const mailFormatter = (rowData, colName) => {
     )
 }
 
+const mailTextboxFormatter = (rowData, colName, rowIndex) => {
+    return (
+        <td>
+            <button>
+            {rowData[colName]}
+            </button>
+            
+        </td>
+    )
+}
+
 const nameFormatter = (rowData, colName, rowIndex) => {
     return (
         <td>
@@ -106,7 +117,6 @@ const coulmnsDef3 = {
             header: 'Age',
             accessor: 'age',
             width: 80,
-            cellFormatter: ageFormatter,
         }
     ],
     pagination: true,
@@ -127,6 +137,7 @@ const coulmnsDef4 = {
             accessor: 'email',
             width: 80,
             searchable: true,
+            cellFormatter: mailTextboxFormatter,
         },
         {
             header: 'Age',
