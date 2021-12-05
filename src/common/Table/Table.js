@@ -5,18 +5,54 @@ import Pagination from './Pagination'
 import './table.css';
 
 const Table = ({ columns, data, customClass }) => {
-    const { items, requestSort, sortConfig } = useSortableData(data);
-
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [dataPerPage] = useState(3);
     const [filterValues, setFilterValues] = useState({});
-    const [sortedData, setSortedData] = useState(items);
+    const [sortedData, setSortedData] = useState(data);
     const [currentPageData, setCurrentPageData] = useState([]);
+    const [sortConfig, setSortConfig] = useState(null);
+    
+    const requestSort = (key) => {
+        let direction = 'ascending';
+        if (
+          sortConfig &&
+          sortConfig.key === key &&
+          sortConfig.direction === 'ascending'
+        ) {
+          direction = 'descending';
+        }
+        setSortConfig({ key, direction });
+      };
+    // const { items, requestSort, sortConfig } = useSortableData(data);
+    //===========
+  
+    function sortableData (data) {
+        
+          let sortableItems = [...data];
+          if (sortConfig !== null) {
+            sortableItems.sort((a, b) => {
+              if (a[sortConfig.key] < b[sortConfig.key]) {
+                return sortConfig.direction === 'ascending' ? -1 : 1;
+              }
+              if (a[sortConfig.key] > b[sortConfig.key]) {
+                return sortConfig.direction === 'ascending' ? 1 : -1;
+              }
+              return 0;
+            });
+          }
+    
+        setSortedData(sortableItems);
+
+        // return { requestSort };
+    }
+
+    // const { requestSort } = sortableData(data);
+    //============
 
     // current page data
-    const indexOfLastData = currentPage * dataPerPage;
-    const indexOfFirstData = indexOfLastData - dataPerPage;
+    let indexOfLastData = currentPage * dataPerPage;
+    let indexOfFirstData = indexOfLastData - dataPerPage;
     // let currentPageData = items.slice(indexOfFirstData, indexOfLastData);
 
     // Change page
@@ -37,7 +73,12 @@ const Table = ({ columns, data, customClass }) => {
       };
 
       function filterRowData(row, filters) {
+        if (!filters)
+            return true;
         const filterKeys = Object.keys(filters);
+
+        if(filterKeys?.length === 0)
+            return true;
         
         for (let filterKey of filterKeys) {
           if (row[filterKey]?.toLowerCase()?.includes(filters[filterKey]?.toLowerCase())) {
@@ -47,16 +88,39 @@ const Table = ({ columns, data, customClass }) => {
         return false;
       }
 
+      useEffect(() => {
+        sortableData(data);
+          
+      }, [sortConfig]);
+      
     //   useEffect(() => {
-    //       const filteredData = currentPageData.filter((rowData) => {
-    //         return filterRowData(rowData, filterValues)
-    //     });
-    //       setCurrentPageData(filteredData);
-    //   }, [items])
+    //     sortableData(data);
+          
+    //   }, [sortedData]);
+
+      useEffect(() => {
+          const filteredData = sortedData
+          .filter((rowData) => {
+            return filterRowData(rowData, filterValues)
+            })
+            .slice(indexOfFirstData, indexOfLastData);
+          setCurrentPageData(filteredData);
+      }, [sortedData])
+      
+      useEffect(() => {
+          indexOfFirstData = 0;
+          indexOfLastData = dataPerPage;
+          const filteredData = sortedData
+            .filter((rowData) => {
+                return filterRowData(rowData, filterValues)
+                })
+            .slice(indexOfFirstData, indexOfLastData);
+          setCurrentPageData(filteredData);
+      }, [filterValues])
       
     useEffect(() => {
-        setCurrentPageData(items.slice(indexOfFirstData, indexOfLastData));
-      }, [items, currentPage])
+        setCurrentPageData(sortedData.slice(indexOfFirstData, indexOfLastData));
+      }, [ currentPage])
 
       useEffect(() => {
         //   const filteredData = items.filter((rowData) => {
@@ -65,7 +129,8 @@ const Table = ({ columns, data, customClass }) => {
         // currentPageData = items.slice(indexOfFirstData, indexOfLastData);
         // setSortedData(items); 
         
-          setCurrentPageData(items.slice(indexOfFirstData, indexOfLastData));
+        sortableData(data);
+          setCurrentPageData(sortedData.slice(indexOfFirstData, indexOfLastData));
       }, [])
 
     return (
@@ -109,38 +174,3 @@ const Table = ({ columns, data, customClass }) => {
 };
 
 export default Table;
-
-
-const useSortableData = (items, config = null) => {
-    const [sortConfig, setSortConfig] = React.useState(config);
-  
-    const sortedItems = React.useMemo(() => {
-      let sortableItems = [...items];
-      if (sortConfig !== null) {
-        sortableItems.sort((a, b) => {
-          if (a[sortConfig.key] < b[sortConfig.key]) {
-            return sortConfig.direction === 'ascending' ? -1 : 1;
-          }
-          if (a[sortConfig.key] > b[sortConfig.key]) {
-            return sortConfig.direction === 'ascending' ? 1 : -1;
-          }
-          return 0;
-        });
-      }
-      return sortableItems;
-    }, [items, sortConfig]);
-  
-    const requestSort = (key) => {
-      let direction = 'ascending';
-      if (
-        sortConfig &&
-        sortConfig.key === key &&
-        sortConfig.direction === 'ascending'
-      ) {
-        direction = 'descending';
-      }
-      setSortConfig({ key, direction });
-    };
-  
-    return { items: sortedItems, requestSort, sortConfig };
-  };
