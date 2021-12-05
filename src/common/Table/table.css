@@ -1,6 +1,8 @@
-table, th, td {
+
+table, thead, td {
     border: 1px solid #ccc;
     border-collapse: collapse;
+    padding: .5em;
   }
 
 thead a {
@@ -24,4 +26,34 @@ thead a.descending::after {
     width: 100%;
     table-layout: fixed;
     overflow-wrap: break-word;
+}
+
+.pagination {
+  display: inline-block;
+  float: right;
+}
+
+.pagination li {
+  color: black;
+  float: left;
+  padding: 8px 16px;
+  list-style: none;
+}
+.pagination li a{
+  text-decoration: none;
+}
+
+.pagination li.active {
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 5px;
+}
+
+.pagination li:hover:not(.active) {
+  background-color: #ddd;
+  border-radius: 5px;
+}
+
+.filter-text-input {
+margin-left: 1em;
 }

@@ -6,6 +6,7 @@ const TableHead = ({ column, tableHeadCallbacks, filter }) => {
             {column?.header}
             {column?.searchable && (
                 <input
+                    className="filter-text-input"
                     type="text"
                     value={filter}
                     onChange={e => tableHeadCallbacks?.onChangeFilterText(e.target.value, column?.accessor)} />
@@ -13,7 +14,7 @@ const TableHead = ({ column, tableHeadCallbacks, filter }) => {
             {column?.sortable && (
                 <a
                     onClick={() => tableHeadCallbacks?.requestSort?.(column?.accessor)}
-                    className={tableHeadCallbacks?.getClassNamesFor?.(column?.accessor)}
+                    className={`sort-button ${tableHeadCallbacks?.getClassNamesFor?.(column?.accessor)}`}
                 />
             )}
 

@@ -1,0 +1,14 @@
+.half-left {
+    width: 50%;
+}
+
+.half-right {
+    width: 50%;
+    position:absolute;
+    right:0;
+}
+
+.middle {
+    margin: 0 auto;
+    width: 50%;
+}
